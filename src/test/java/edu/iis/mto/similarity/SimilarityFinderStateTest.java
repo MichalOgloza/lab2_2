@@ -15,6 +15,7 @@ class SimilarityFinderStateTest
     private int [] emptySeq;
     private int [] oneElementSeq;
     private int [] exampleSeq;
+    private int [] similarSeq;
     private int [] differentSeq;
 
     @BeforeEach
@@ -24,7 +25,8 @@ class SimilarityFinderStateTest
         emptySeq = new int [0];
         oneElementSeq = new int [] {3};
         exampleSeq = new int [] {9, 3, 7, 1, 0, 6, 200};
-        differentSeq = new int [] {9, 3, 7, 1, 0, 6, 9};
+        differentSeq = new int [] {8, 4, 5, 2, -1, 12, 300};
+        similarSeq = new int [] {9, 3, 7, 1, 0, 6, 9};
     }
 
     @Test
@@ -74,7 +76,7 @@ class SimilarityFinderStateTest
     @Test
     void completelyDifferentSeqTest()
     {
-
+        assertEquals(COMPLETELY_DIFFERENT, similarityFinder.calculateJackardSimilarity(exampleSeq, differentSeq));
     }
 
     @Test

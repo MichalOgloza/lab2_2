@@ -62,7 +62,7 @@ class SimilarityFinderStateTest
     @Test
     void bothSeqOneElementTest()
     {
-
+        assertEquals(IDENTICAL, similarityFinder.calculateJackardSimilarity(oneElementSeq, oneElementSeq));
     }
 
     @Test

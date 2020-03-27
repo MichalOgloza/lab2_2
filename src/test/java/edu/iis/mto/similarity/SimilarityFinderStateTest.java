@@ -82,7 +82,8 @@ class SimilarityFinderStateTest
     @Test
     void slightlyDifferentSeqTest()
     {
-
+        double result = similarityFinder.calculateJackardSimilarity(exampleSeq, similarSeq);
+        assertTrue(result > COMPLETELY_DIFFERENT && result < IDENTICAL);
     }
 
 }

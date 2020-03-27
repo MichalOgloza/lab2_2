@@ -27,7 +27,7 @@ class SimilarityFinderBehaviourTest
     @Test
     void secondArgumentNullTest()
     {
-
+        assertThrows(NullPointerException.class, () -> similarityFinder.calculateJackardSimilarity(exampleSeq, null));
     }
 
     @Test

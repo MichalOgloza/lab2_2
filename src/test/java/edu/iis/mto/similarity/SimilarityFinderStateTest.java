@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SimilarityFinderStateTest
 {
-    private static final double COMPLETELY_DIFFERENT = 0;
-    private static final double IDENTICAL = 1;
+    private static final double COMPLETELY_DIFFERENT = 0.0d;
+    private static final double IDENTICAL = 1.0d;
     private SimilarityFinder similarityFinder;
     private int [] emptySeq;
     private int [] oneElementSeq;
@@ -36,7 +36,7 @@ class SimilarityFinderStateTest
     @Test
     void secondSeqEmptyTest()
     {
-
+        assertEquals(COMPLETELY_DIFFERENT, similarityFinder.calculateJackardSimilarity(exampleSeq, emptySeq));
     }
 
     @Test

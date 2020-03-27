@@ -9,12 +9,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class SimilarityFinderBehaviourTest
 {
     SimilarityFinder similarityFinder;
+    MockSearcher mockSearcher;
     int [] exampleSeq;
 
     @BeforeEach
     void init()
     {
-        similarityFinder = new SimilarityFinder(new MockSearcher());
+        mockSearcher = new MockSearcher();
+        similarityFinder = new SimilarityFinder(mockSearcher);
         exampleSeq = new int[] {9, 3, 0, 10};
     }
 
@@ -39,6 +41,7 @@ class SimilarityFinderBehaviourTest
     @Test
     void numberOfCallsTest()
     {
-
+        similarityFinder.calculateJackardSimilarity(exampleSeq, exampleSeq);
+        assertEquals(exampleSeq.length, mockSearcher.callCounter);
     }
 }

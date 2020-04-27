@@ -1,8 +1,11 @@
 package edu.iis.mto.similarity;
 
-import edu.iis.mto.search.MockSearcher;
+import edu.iis.mto.search.SearchResult;
+import edu.iis.mto.search.SearcherDouble;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,7 +13,7 @@ class SimilarityFinderTest
 {
     private static final double COMPLETELY_DIFFERENT = 0.0d;
     private static final double IDENTICAL = 1.0d;
-    private MockSearcher mockSearcher;
+    private SearcherDouble searcherDouble;
     private SimilarityFinder similarityFinder;
     private int [] emptySeq;
     private int [] oneElementSeq;
@@ -22,8 +25,8 @@ class SimilarityFinderTest
     @BeforeEach
     void init()
     {
-        mockSearcher = new MockSearcher();
-        similarityFinder = new SimilarityFinder(mockSearcher);
+        searcherDouble = new SearcherDouble();
+        similarityFinder = new SimilarityFinder(searcherDouble);
         emptySeq = new int [0];
         oneElementSeq = new int [] {3};
         exampleSeq = new int [] {9, 3, 7, 1, 0, 6, 200};
@@ -34,28 +37,19 @@ class SimilarityFinderTest
     //Behaviour
 
     @Test
-    void firstArgumentNullTest()
+    void ArgumentNullTest()
     {
         assertThrows(NullPointerException.class, () -> similarityFinder.calculateJackardSimilarity(null, exampleSeq));
     }
 
     @Test
-    void secondArgumentNullTest()
-    {
-        assertThrows(NullPointerException.class, () -> similarityFinder.calculateJackardSimilarity(exampleSeq, null));
-    }
-
-    @Test
-    void bothArgumentNullTest()
-    {
-        assertThrows(NullPointerException.class, () -> similarityFinder.calculateJackardSimilarity(null, null));
-    }
-
-    @Test
     void numberOfCallsTest()
     {
+        ArrayList<SearchResult> results = buildTrueResults(exampleSeq.length);
+        searcherDouble.setResults(results);
+
         similarityFinder.calculateJackardSimilarity(exampleSeq, exampleSeq);
-        assertEquals(exampleSeq.length, mockSearcher.callCounter);
+        assertEquals(exampleSeq.length, searcherDouble.callCounter);
     }
 
     //State
@@ -69,6 +63,9 @@ class SimilarityFinderTest
     @Test
     void secondSeqEmptyTest()
     {
+        ArrayList<SearchResult> results = buildFalseResults(exampleSeq.length);
+        searcherDouble.setResults(results);
+
         assertEquals(COMPLETELY_DIFFERENT, similarityFinder.calculateJackardSimilarity(exampleSeq, emptySeq));
     }
 
@@ -81,6 +78,11 @@ class SimilarityFinderTest
     @Test
     void firstSeqOneElementTest()
     {
+        ArrayList<SearchResult> results = new ArrayList<>();
+        results.add(SearchResult.builder().withPosition(2).withFound(true).build());
+
+        searcherDouble.setResults(results);
+
         double result = similarityFinder.calculateJackardSimilarity(oneElementSeq, exampleSeq);
         assertTrue(result > COMPLETELY_DIFFERENT && result < IDENTICAL);
     }
@@ -88,6 +90,11 @@ class SimilarityFinderTest
     @Test
     void secondSeqOneElementTest()
     {
+        ArrayList<SearchResult> results = buildFalseResults(exampleSeq.length);
+        results.set(1, SearchResult.builder().withPosition(0).withFound(true).build());
+
+        searcherDouble.setResults(results);
+
         double result = similarityFinder.calculateJackardSimilarity(exampleSeq, oneElementSeq);
         assertTrue(result > COMPLETELY_DIFFERENT && result < IDENTICAL);
     }
@@ -95,25 +102,69 @@ class SimilarityFinderTest
     @Test
     void bothSeqOneElementTest()
     {
+        ArrayList<SearchResult> results = new ArrayList<>();
+        results.add(SearchResult.builder().withPosition(0).withFound(true).build());
+
+        searcherDouble.setResults(results);
+
         assertEquals(IDENTICAL, similarityFinder.calculateJackardSimilarity(oneElementSeq, oneElementSeq));
     }
 
     @Test
     void identicalSeqTest()
     {
+        ArrayList<SearchResult> results = buildTrueResults(exampleSeq.length);
+        searcherDouble.setResults(results);
+
         assertEquals(IDENTICAL, similarityFinder.calculateJackardSimilarity(exampleSeq, exampleSeq));
     }
 
     @Test
     void completelyDifferentSeqTest()
     {
+        ArrayList<SearchResult> results = buildFalseResults(exampleSeq.length);
+        searcherDouble.setResults(results);
+
         assertEquals(COMPLETELY_DIFFERENT, similarityFinder.calculateJackardSimilarity(exampleSeq, differentSeq));
     }
 
     @Test
     void slightlyDifferentSeqTest()
     {
+        ArrayList<SearchResult> results = buildTrueResults(exampleSeq.length);
+        results.set(6, SearchResult.builder().withPosition(-1).withFound(false).build());
+
+        searcherDouble.setResults(results);
+
         double result = similarityFinder.calculateJackardSimilarity(exampleSeq, similarSeq);
         assertTrue(result > COMPLETELY_DIFFERENT && result < IDENTICAL);
+    }
+
+    private ArrayList<SearchResult> buildTrueResults(int len)
+    {
+        ArrayList<SearchResult> results = new ArrayList<>();
+
+        for (int i = 0; i < len; i++)
+        {
+            results.add(SearchResult.builder()
+                    .withFound(true)
+                    .withPosition(i)
+                    .build());
+        }
+        return results;
+    }
+
+    private ArrayList<SearchResult> buildFalseResults(int len)
+    {
+        ArrayList<SearchResult> results = new ArrayList<>();
+
+        for (int i = 0; i < len; i++)
+        {
+            results.add(SearchResult.builder()
+                    .withFound(false)
+                    .withPosition(-1)
+                    .build());
+        }
+        return results;
     }
 }

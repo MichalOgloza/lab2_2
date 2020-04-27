@@ -1,16 +1,16 @@
 package edu.iis.mto.similarity;
 
 import edu.iis.mto.search.MockSearcher;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SimilarityFinderStateTest
+class SimilarityFinderTest
 {
     private static final double COMPLETELY_DIFFERENT = 0.0d;
     private static final double IDENTICAL = 1.0d;
+    private MockSearcher mockSearcher;
     private SimilarityFinder similarityFinder;
     private int [] emptySeq;
     private int [] oneElementSeq;
@@ -18,16 +18,47 @@ class SimilarityFinderStateTest
     private int [] similarSeq;
     private int [] differentSeq;
 
+
     @BeforeEach
     void init()
     {
-        similarityFinder = new SimilarityFinder(new MockSearcher());
+        mockSearcher = new MockSearcher();
+        similarityFinder = new SimilarityFinder(mockSearcher);
         emptySeq = new int [0];
         oneElementSeq = new int [] {3};
         exampleSeq = new int [] {9, 3, 7, 1, 0, 6, 200};
         differentSeq = new int [] {8, 4, 5, 2, -1, 12, 300};
         similarSeq = new int [] {9, 3, 7, 1, 0, 6, 9};
     }
+
+    //Behaviour
+
+    @Test
+    void firstArgumentNullTest()
+    {
+        assertThrows(NullPointerException.class, () -> similarityFinder.calculateJackardSimilarity(null, exampleSeq));
+    }
+
+    @Test
+    void secondArgumentNullTest()
+    {
+        assertThrows(NullPointerException.class, () -> similarityFinder.calculateJackardSimilarity(exampleSeq, null));
+    }
+
+    @Test
+    void bothArgumentNullTest()
+    {
+        assertThrows(NullPointerException.class, () -> similarityFinder.calculateJackardSimilarity(null, null));
+    }
+
+    @Test
+    void numberOfCallsTest()
+    {
+        similarityFinder.calculateJackardSimilarity(exampleSeq, exampleSeq);
+        assertEquals(exampleSeq.length, mockSearcher.callCounter);
+    }
+
+    //State
 
     @Test
     void firstSeqEmptyTest()
@@ -85,5 +116,4 @@ class SimilarityFinderStateTest
         double result = similarityFinder.calculateJackardSimilarity(exampleSeq, similarSeq);
         assertTrue(result > COMPLETELY_DIFFERENT && result < IDENTICAL);
     }
-
 }
